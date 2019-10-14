@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Nathan Petreaca  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3: PathTracer</h1>
+    <h2 align="middle">Nathan Petreaca</h2>
+
+    <div class="padded">
+    
+<p> Now that we can render a scene, we go in depth on how to model different materals. Furthermore, how to light these models differently using an enviroment light, and how to view the scene differently with a camera.</p>
+
+    <h2 align="middle">Part 1: Mirror and Glass Materials</h2>
+    <p>
+        Here we model two fundamental materials: Mirrors and Glass. These respectively correlate to the properties of reflection and refraction, so, in modeling these, we have to understand the properties of reflection and refraction. Basically, reflection sends a ray of light and in the negative direction reflected along the normals of the surface material. Refraction is the property by which rays of light change direction when entering and leaving a new medium. This is modeled by Snells law and the Law of refraction. Snells law describes how a Ray of lights direction will change when it changes medium while the law of refraction tells us when the light will reflect off a surface of refract into it. Basically, when light is moving from a more dense medium to a less dense medium, light incident on a boundary large enough will not exit.
+</p>
+        
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/task1_m0.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 0</figcaption>
+                    <td align="middle">
+                    <img src="images/task1_m1.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 1</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/task1_m2.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 2</figcaption>
+                    <td align="middle">
+                    <img src="images/task1_m3.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 3</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/task1_m4.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 4</figcaption>
+                    <td align="middle">
+                    <img src="images/task1_m5.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 5</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/task1_m100.png" width="480px" />
+                    <figcaption align="middle">Bounce Depth = 100</figcaption>
+                </tr>
+            </table>
+        </div>
+
+
+<p>
+So if we examine the above images, we see how or new materials play into our multibounce rendering. Bounce Depth 0 shows the light source, the initial place of the light Rays. Bounce Depth 1 shows the first rays that are able to bounce into the view. The spheres are black because at this point the light has not reflected from the surrounding surfaces into the view. Once we have 2 bounces we see the mirror ball reflecting light into our view and examine the reflections caused by light that by the law of refraction was unable to enter the refractive material and simply bounced off. After 3 bounces we see the rays of light that pass through the refractive surface and into our view. After 4 bounces we see the light that first entered the refractive ball, hit the other side of the ball, and then hit the floor and bounced into our view. After 5 bounces we can see on the left blue wall a white lit up spot. This is the light that bounced from the floor, onto the wall and into our view. After 100 bounces we see all the combined effects of reflection and refraction.
+</p>
+
+    <h2 align="middle">Part 2: Microfacet Material</h2>
+
+<p> In this part, we model more complex surfaces using the Microfacet Theory which states that at the micro level, all surfaces elements act light tiny mirrors. What differentiates a smooth material versus a rough material is in the distribution of the normals of these tiny mirrors which we call microfacets. A diffuse material will have the normals spread out while a glossier surface will have more concentrated normals.
+</p>
+***
+
+        <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/task2alphapt005.png" width="480px" />
+                    <figcaption align="middle">alpha = 0.005</figcaption>
+                    <td align="middle">
+                    <img src="images/task2alphapt05.png" width="480px" />
+                    <figcaption align="middle">alpha = 0.05</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/task2alphapt25.png" width="480px" />
+                    <figcaption align="middle">alpha = 0.25</figcaption>
+                    <td align="middle">
+                    <img src="images/task2alphapt5.png" width="480px" />
+                    <figcaption align="middle">alpha = 0.5</figcaption>
+                </tr>
+    
+            </table>
+        </div>
+
+<p> Above we render the exact same scene of this dragon made out of gold, but with a different alpha term. Alpha represents the roughness of the macro surface, the surface we see. This term helps us characterize the micro surface as having a spread set of normal vectors. The smaller α is, the smoother the macro surface will be. In other words, the macro surface tends to be diffuse when α is large and glossy when α is small.
+</p>
+ 
+            <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/task2hem.png" width="480px" />
+                    <figcaption align="middle">Hemisphere</figcaption>
+                    <td align="middle">
+                    <img src="images/task2importance.png" width="480px" />
+                    <figcaption align="middle">Importance</figcaption>
+                </tr>
+            </table>
+        </div>
+
+        <P> Above we demonstrates the difference between importance sampling and cosines hemisphere sampling. Cosines hemisphere sampling equally samples the MicrofacetBRDF while importance sampling was a set of pdfs that closely match the distribution of the normals of the surface. Basically what we see here is that the importance sampling converges to the correct render much quicker than the uniform sampling.
+        </P>
+
+
+                    <img src="images/task2alphapt5calcium.png" width="480px" />
+                    <figcaption align="padding-left">Calcium</figcaption>
+                    <p> Here we show the power of this technique as we turn the gold dragon into one made of calcium.</p>
+
+
+
+    <h2 align="middle">Part 3: Environment Light</h2>
+<p> Here we use an environment light to light our scene. This is a light that supplies incident radiance from all directions on a sphere. This light is said to be from infinitely far away. This is used to simulate lighting in the real world which comes from all directions and usually infinitely far away. The intensity of this light coming from the sphere is defined by a texture map parameterized by theta and phi.
+</p>
+
+                    <img src="images/bunny_microfacet_cu_unlit_screenshot_3-29_22-52-10.png" width="480px" />
+
+
+                    <img src="images/probability_debug.png" width="480px" />
+
+                    <p> Now, we can sample light from this environment uniformly across our texture, or we can sample at areas that have more light coming from them and are more likely to light our scene. This simulates the real world where most of the light comes from a particular area of the world.</p>
+
+                    <p> Above we show the debug image from our importance sampling section. </p>
+
+
+
+
+          <div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/bunnyunlituniform.png" width="480px" />
+                    <figcaption align="middle">Hemisphere</figcaption>
+                    <td align="middle">
+                    <img src="images/bunnyunlitimportance.png" width="480px" />
+                    <figcaption align="middle">Importance</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/bunnyunlitcuuniform.png" width="480px" />
+                    <figcaption align="middle">Hemisphere</figcaption>
+                    <td align="middle">
+                    <img src="images/bunnyunlitcuimportance.png" width="480px" />
+                    <figcaption align="middle">Importance</figcaption>
+                </tr>
+    
+            </table>
+        </div>
+<p> Above we examine the differences between using the uniform sampling versus the hemisphere sampling. As we can see they converge roughly the same, but the importance sampling has much less noise. Particularly, it does not have bright highlighted spots .</p>
+        
+
+
+
+ <h2 align="middle">Part 4:Depth of Field</h2>
+
+ <p> In this section, we model how a camera would see our scene. We do this by using the thin lens model. What this basically does is say that the way a lens works can be simplified to a set of focal points and how rays interact with them and bend toward them when going through the lens. Parallel rays of light coming from one side of the lens are refracted so they converge in the focus point on the other side. rays coming out of a focus are refracted so that on the other side of the lens they become parallel. As opposed to the pinhole model which states that all rays simply pass through a single focal point.</p>
+
+                    <img src="images/CBdragon_microfacet_au_screenshot_3-30_11-4-29.png" width="480px" />
+
+<div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/0.1,1.3.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.1, Focus = 1.3</figcaption>
+                    <td align="middle">
+                    <img src="images/0.1,1.45.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.1, Focus = 1.45</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/0.1,1.55.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.1, Focus = 1.55</figcaption>
+                    <td align="middle">
+                    <img src="images/0.1,1.7.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.1, Focus = 1.7</figcaption>
+                </tr>
+    
+            </table>
+        </div>
+
+        <P> Above we show images with different points of focus, but the same aperature.</P>
+
+
+<div align="left">
+            <table style="width=100%">
+                <tr>
+                    <td align="middle">
+                    <img src="images/0.1.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.1</figcaption>
+                    <td align="middle">
+                    <img src="images/0.01.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.01</figcaption>
+                </tr>
+                <tr>
+                    <td align="middle">
+                    <img src="images/0.001.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.001</figcaption>
+                    <td align="middle">
+                    <img src="images/0.0001.png" width="480px" />
+                    <figcaption align="middle">Aperature = 0.0001</figcaption>
+                </tr>
+    
+            </table>
+        </div>
+
+<P> Above we show images with different aperatures, but the same point of focus.</P>
+
+
+</div>
+</body>
+</html>
+
+
+
+
